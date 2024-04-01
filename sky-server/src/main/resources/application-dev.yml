@@ -8,7 +8,7 @@ sky:
     password: 20031224yyb
 #  alioss:
 #    endpoint: oss-cn-beijing.aliyuncs.com
-#    access-key-id: LTAI5tL4zz2ofTwpRyC5zc1w
+#    access-key-id: 20031224yyb
 #    access-key-secret: 20031224yyb
 #    bucket-name: javaweb-yyb
   redis:

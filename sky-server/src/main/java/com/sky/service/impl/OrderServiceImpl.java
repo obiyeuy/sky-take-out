@@ -180,6 +180,14 @@ public class OrderServiceImpl implements OrderService {
 
         orderMapper.updateStatus(OrderStatus,OrderPaidStatus,check_out_time,this.orders.getId());
 
+        //通过WebSocket向客户端浏览器推送消息  type  orderId  content
+        Map map = new HashMap();
+        map.put("type",1); //1表示来单提醒，2表示客户催单
+        map.put("orderId",this.orders.getId());
+        map.put("content","订单号:"+this.orders.getNumber());
+
+        String json = JSON.toJSONString(map);
+        webSocketServer.sendToAllClient(json);
 
         return vo;
     }
@@ -189,6 +197,8 @@ public class OrderServiceImpl implements OrderService {
      *
      * @param outTradeNo
      */
+    //为了绕过微信支付跳过了paysucess方法，其中逻辑写在payment中
+
     public void paySuccess(String outTradeNo) {
 
         // 根据订单号查询订单
@@ -539,6 +549,7 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.update(orders);
     }
 
+
 //    /**
 //     * 检查客户的收货地址是否超出配送范围
 //     * @param address
@@ -603,6 +614,28 @@ public class OrderServiceImpl implements OrderService {
 //        }
 //    }
 
+
+    /**
+     * 客户催单
+     * @param id
+     */
+    public void reminder(Long id) {
+        //根据id查询订单
+        Orders ordersDB = orderMapper.getById(id);
+
+        //校验订单是否存在
+        if(ordersDB == null){
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        //通过WebSocket向客户端浏览器推送消息  type  orderId  content
+        Map map = new HashMap();
+        map.put("type",2); //1表示来单提醒，2表示客户催单
+        map.put("orderId",id);
+        map.put("content","订单号:"+ordersDB.getNumber());
+
+        webSocketServer.sendToAllClient(JSON.toJSONString(map));
+    }
 }
 
 
